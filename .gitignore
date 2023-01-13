@@ -1,0 +1,9 @@
+# Binaries
+*
+!*.*
+!*/
+
+*.a
+*.so
+
+./src/rustlib/target

@@ -1,0 +1,9 @@
+version: '3'
+services:
+  app:
+    build: docker/app
+    tty: true
+    ports: # ホストのポート:コンテナのポート
+      - 9000:9000
+    volumes:
+      - .:/application
