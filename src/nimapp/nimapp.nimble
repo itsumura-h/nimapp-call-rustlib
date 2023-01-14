@@ -15,9 +15,14 @@ requires "nim >= 1.6.10"
 task build, "build nimapp":
   exec("""
     nim c
+    -f
     -d:release
     --passC:-flto
     --passL:-flto
     --gc:orc
     src/nimapp
   """)
+  
+task run, "run nimapp":
+  exec("nimble build")
+  exec("./src/nimapp")

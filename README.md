@@ -6,6 +6,7 @@ nimble init nimapp
 
 Rustでプロジェクトを作る
 ```
+cd /application/src
 cargo new rustlib --lib
 ```
 
@@ -120,29 +121,62 @@ pub extern "C" fn get_person_name(person: &Person) -> *mut c_char {
 Nim側グルー層
 
 ```nim
-# 独自型を定義する
-type PersonObj{.pure, final.}  = object
-  id:int
-  name:cstring
-# 独自型の参照を定義する
-type Person* = ref PersonObj
+type
+  # 独自型を定義する
+  UpdatablePersonObj {.pure, final.} = object
+    id:int
+    name:cstring
+
+  # 独自型のポインタを定義する
+  UpdatablePersonPtr = ptr UpdatablePersonObj
+
+  # ポインタフィールドに持つオブジェクトを定義する
+  UpdatablePerson* = ref object
+    rawPtr: UpdatablePersonPtr
+
 
 # C言語の型に合わせたグルー関数を定義する
-proc newPerson(id:int, name:cstring):Person {.dynlib:libpath, importc:"new_person".}
+# Rustの関数の返り値はポインタになるになる
+proc newUpdatablePerson(id:int, name:cstring):UpdatablePersonPtr {.dynlib:libpath, importc:"new_updatable_person".}
 # C言語の型とNimの型を相互変換する関数を定義する。Nimのコードからはこちらを呼ぶ
-proc new*(_:type Person, id:int, name:string):Person = newPerson(id, name.cstring)
+proc new*(_:type UpdatablePerson, id:int, name:string):UpdatablePerson = UpdatablePerson(rawPtr:newUpdatablePerson(id, name.cstring))
 
-proc getPersonId(self:Person):int64 {.dynlib:libpath, importc:"get_person_id".}
-proc id*(self:Person):int = self.getPersonId().int
+proc getUpdatablePersonId(self:UpdatablePersonPtr):int64 {.dynlib:libpath, importc:"get_updatable_person_id".}
+proc id*(self:UpdatablePerson):int = self.rawPtr.getUpdatablePersonId().int
 
-proc getPersonName(self:Person):cstring {.dynlib:libpath, importc:"get_person_name".}
-proc name*(self:Person):string = $self.getPersonName()
+proc setUpdatablePersonId(self:UpdatablePersonPtr, id:int) {.dynlib:libpath, importc:"set_updatable_person_id".}
+proc setId*(self:UpdatablePerson, id:int) = self.rawPtr.setUpdatablePersonId(id)
+
+proc getUpdatablePersonName(self:UpdatablePersonPtr):cstring {.dynlib:libpath, importc:"get_updatable_person_name".}
+proc name*(self:UpdatablePerson):string = $self.rawPtr.getUpdatablePersonName()
+
+proc setUpdatablePersonName(self:UpdatablePersonPtr, name:cstring) {.dynlib:libpath, importc:"set_updatable_person_name".}
+proc setName*(self:UpdatablePerson, name:string) = self.rawPtr.setUpdatablePersonName(name.cstring)
+
 ```
 
 Nim側アプリケーション
 ```nim
-let person = Person.new(1, "John")
+let person = UpdatablePerson.new(1, "John")
 echo person.repr
 echo person.id()
 echo person.name()
+check:
+  person.id() == 1
+  person.name() == "John"
+
+person.setId(2)
+person.setName("Paul")
+echo person.repr
+echo person.id()
+echo person.name()
+check:
+  person.id() == 2
+  person.name() == "Paul"
+```
+
+## 楕円曲線暗号
+
+```sh
+carge add p256 rand_core
 ```

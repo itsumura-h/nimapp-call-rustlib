@@ -2,8 +2,10 @@
 *
 !*.*
 !*/
+!Dockerfile
 
 *.a
 *.so
 
-./src/rustlib/target
+src/nimapp/nimcache
+src/rustlib/target
