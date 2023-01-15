@@ -85,3 +85,8 @@ proc setName*(self:UpdatablePerson, name:string) = self.rawPtr.setUpdatablePerso
 
 
 # ==================== Crypto ====================
+type SecretKey = ptr object
+
+proc createSecretKey*():SecretKey {.dynlib:libpath, importc:"create_secret_key".}
+proc len*(self:SecretKey):uint8 {.dynlib:libpath, importc:"get_length".}
+proc `[]`*(self:SecretKey, offset:uint):uint8 {.dynlib:libpath, importc:"get_item_of_secret_key".}

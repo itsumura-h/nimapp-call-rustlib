@@ -41,3 +41,9 @@ suite "object":
     check:
       person.id() == 2
       person.name() == "Paul"
+
+  test "crypto":
+    let secretKey = createSecretKey()
+    echo secretKey.len()
+    for i in 0..<secretKey.len():
+      echo secretKey[i]

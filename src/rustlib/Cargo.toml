@@ -13,3 +13,9 @@ crate-type   = ["cdylib"]
 [dependencies]
 p256 = "0.11.1"
 rand_core = "0.6.4"
+safer-ffi = "0.0.10"
+
+[features]
+# If you want to generate the headers, use a feature-gate
+# to opt into doing so:
+headers = ["safer-ffi/headers"]
