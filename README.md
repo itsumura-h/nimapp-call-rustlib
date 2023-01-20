@@ -176,16 +176,6 @@ check:
 ```
 
 ## 楕円曲線暗号
-
-safer_ffiを使ったほうが良さそう  
-https://github.com/getditto/safer_ffi  
-https://getditto.github.io/safer_ffi/  
-
-```sh
-carge add safer_ffi
-```
-
-
 ```sh
 carge add p256 rand_core
 ```

@@ -7,6 +7,7 @@ pub fn cstirng_to_string(_arg: *const c_char) -> String {
         assert!(!_arg.is_null());
         let c_str = CStr::from_ptr(_arg);
         let str_slice = c_str.to_str().unwrap();
+        drop(c_str);
         str_slice.to_owned()
     };
     arg

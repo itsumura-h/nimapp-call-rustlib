@@ -24,5 +24,5 @@ task build, "build nimapp":
   """)
   
 task run, "run nimapp":
-  exec("nimble build")
+  buildTask()
   exec("./src/nimapp")

@@ -8,6 +8,11 @@ suite "test":
     echo add(1, 2)
     check add(1, 2) == 3
 
+  test "recieveStrThenReturn":
+    let str = "Hello World"
+    let resp = recieveStrThenReturn(str)
+    echo resp
+
   test "fib array":
     let res = fibArray(10)
     echo res
@@ -42,8 +47,32 @@ suite "object":
       person.id() == 2
       person.name() == "Paul"
 
-  test "crypto":
+suite "crypto":
+  test "secret key":
     let secretKey = createSecretKey()
-    echo secretKey.len()
-    for i in 0..<secretKey.len():
-      echo secretKey[i]
+    echo secretKey
+
+  test "hex key":
+    let key = createSecretKeyHex()
+    echo key
+
+  test "hex key to seq":
+    let key = createSecretKeyHex()
+    echo key
+    let s = hexKeyToSeq($key)
+    echo s
+
+  test "sign message":
+    let msg = "Hello World"
+    let key = createSecretKeyHex()
+    echo "=== key"
+    echo key
+    let signature = signMessage(msg, key)
+    echo "=== signature"
+    echo signature
+    let isValid = verifySign(key, msg, signature)
+    echo "=== expect true"
+    echo isValid
+    let expectWrong = verifySign(key, "wrong", signature)
+    echo "=== expect false"
+    echo expectWrong

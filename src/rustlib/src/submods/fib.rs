@@ -1,3 +1,5 @@
+use std::ffi::c_char;
+
 fn fib(n: u64) -> u64 {
     match n {
         0 => 0,
@@ -16,14 +18,15 @@ pub extern "C" fn fib_array(n: u64) -> *mut Vec<u64> {
 }
 
 #[no_mangle]
-pub extern "C" fn get_vector_len(v: &Vec<u64>) -> usize {
+pub extern "C" fn get_fib_len(v: &mut Vec<u64>) -> usize {
     v.len()
 }
 
 #[no_mangle]
-pub extern "C" fn get_vector_item(v: &Vec<u64>, offset: usize) -> u64 {
+pub extern "C" fn get_fib_item(v: &mut Vec<u64>, offset: usize) -> u64 {
     v[offset]
 }
+
 
 #[cfg(test)]
 mod tests {
@@ -31,15 +34,16 @@ mod tests {
 
     #[test]
     fn fib_test() {
-        assert_eq!(fib(1), 1);
-        assert_eq!(fib(2), 1);
-        assert_eq!(fib(3), 2);
-        assert_eq!(fib(4), 3);
-        assert_eq!(fib(5), 5);
-        assert_eq!(fib(6), 8);
-        assert_eq!(fib(7), 13);
-        assert_eq!(fib(8), 21);
-        assert_eq!(fib(9), 34);
-        assert_eq!(fib(10), 55);
+        let expects = [0, 1, 1, 2, 3, 5];
+        for i in 0..5 {
+            println!("{}", fib(i));
+            assert_eq!(fib(i), expects[i as usize]);
+        }
+
+        let fib_array = fib_array(10);
+        for i in 0..get_fib_len(&fib_array) - 1 {
+            println!("{}", get_fib_item(&fib_array, i));
+            assert_eq!(get_fib_item(&fib_array, i), fib(i as u64))
+        }
     }
 }

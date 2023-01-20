@@ -8,8 +8,8 @@ pub struct UpdatablePerson {
 
 impl UpdatablePerson {
     pub fn new(id: i64, name: String) -> Box<UpdatablePerson> {
-        let person = Box::new(UpdatablePerson { id, name });
-        person
+        let person = UpdatablePerson { id, name };
+        Box::new(person)
     }
 
     pub fn id(&self) -> i64 {
