@@ -110,7 +110,6 @@ proc createVerifyingKey*(secret:string):string =
   let secret = secret[2..^1]
   "0x" & $createVerifyingKeyLib(secret.cstring)
 
-
 proc signMessageLib(key, msg:cstring):cstring {.dynlib:libpath, importc:"sign_message".}
 proc signMessage*(key, msg:string):string =
   let key = key[2..^1] # 先頭の0xを削除

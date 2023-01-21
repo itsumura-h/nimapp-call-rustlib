@@ -58,7 +58,9 @@ suite "crypto":
 
   test "verifying key":
     let secret = createSecretKeyHex()
+    echo "=== secret key"
     echo secret
+    echo "=== verify key"
     echo createVerifyingKey(secret)
 
   test "sign message":
@@ -74,15 +76,18 @@ suite "crypto":
     echo "=== expect true"
     echo isValid
     check isValid
-    
+
   test "wrong message":
     let msg = "Hello World"
     let secret = createSecretKeyHex()
     let signature = signMessage(secret, msg)
+    echo "=== signature"
+    echo signature
     let verifyKey = createVerifyingKey(secret)
     echo "=== verify key"
     echo verifyKey
     let res = verifySign(verifyKey, "wrong hello", signature)
+    echo "=== expect false"
     echo res
     check res == false
 
