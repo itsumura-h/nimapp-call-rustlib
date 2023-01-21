@@ -56,23 +56,43 @@ suite "crypto":
     let key = createSecretKeyHex()
     echo key
 
-  test "hex key to seq":
-    let key = createSecretKeyHex()
-    echo key
-    let s = hexKeyToSeq($key)
-    echo s
+  test "verifying key":
+    let secret = createSecretKeyHex()
+    echo secret
+    echo createVerifyingKey(secret)
 
   test "sign message":
     let msg = "Hello World"
-    let key = createSecretKeyHex()
-    echo "=== key"
-    echo key
-    let signature = signMessage(msg, key)
+    let secretKey = createSecretKeyHex()
+    let signature = signMessage(secretKey, msg)
     echo "=== signature"
     echo signature
-    let isValid = verifySign(key, msg, signature)
+    let verifyKey = createVerifyingKey(secretKey)
+    echo "=== verify key"
+    echo verifyKey
+    let isValid = verifySign(verifyKey, msg, signature)
     echo "=== expect true"
     echo isValid
-    let expectWrong = verifySign(key, "wrong", signature)
+    check isValid
+    
+  test "wrong message":
+    let msg = "Hello World"
+    let secret = createSecretKeyHex()
+    let signature = signMessage(secret, msg)
+    let verifyKey = createVerifyingKey(secret)
+    echo "=== verify key"
+    echo verifyKey
+    let res = verifySign(verifyKey, "wrong hello", signature)
+    echo res
+    check res == false
+
+  test "wrong signature":
+    let msg = "Hello World"
+    let secret = createSecretKeyHex()
+    let signature = signMessage(secret, msg)
+    echo "=== signature"
+    echo signature
+    var expectWrong = verifySign("0x012345abcdef", msg, signature)
     echo "=== expect false"
     echo expectWrong
+    check expectWrong == false

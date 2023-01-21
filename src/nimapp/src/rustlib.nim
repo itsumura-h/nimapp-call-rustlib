@@ -87,32 +87,37 @@ proc setName*(self:UpdatablePerson, name:string) = self.rawPtr.setUpdatablePerso
 
 
 # ==================== Crypto ====================
-type SecretKey = ptr object
+type
+  SecretKey = ptr object
+
 
 proc createSecretKeyLib():SecretKey {.dynlib:libpath, importc:"create_secret_key".}
 proc len(self:SecretKey):int {.dynlib:libpath, importc:"get_secret_key_len".}
 proc `[]`(self:SecretKey, offset:int):uint8 {.dynlib:libpath, importc:"get_secret_key_item".}
 proc createSecretKey*():seq[uint8] =
   let secretKey = createSecretKeyLib()
-  var s = newSeq[uint8](secretKey.len())
-  for i in 0..<secretKey.len().int:
-    s[i] = secretKey[i]
-  return s
-
-
-proc hexKeyToVec(key:cstring):SecretKey {.dynlib:libpath, importc:"hex_key_to_vec".}
-proc hexKeyToSeq*(key:string):seq[uint8] =
-  let secretKey = hexKeyToVec(key)
+  defer: secretKey.dealloc()
   var s = newSeq[uint8](secretKey.len())
   for i in 0..<secretKey.len().int:
     s[i] = secretKey[i]
   return s
 
 proc createSecretKeyHexLib():cstring {.dynlib:libpath, importc:"create_secret_key_hex".}
-proc createSecretKeyHex*():string = $createSecretKeyHexLib()
+proc createSecretKeyHex*():string = "0x" & $createSecretKeyHexLib()
 
-proc signMessageLib(msg, key:cstring):cstring {.dynlib:libpath, importc:"sign_message".}
-proc signMessage*(msg, key:string):string = $signMessageLib(msg.cstring, key.cstring)
+proc createVerifyingKeyLib(secret:cstring):cstring {.dynlib:libpath, importc:"create_verifying_key".}
+proc createVerifyingKey*(secret:string):string =
+  let secret = secret[2..^1]
+  "0x" & $createVerifyingKeyLib(secret.cstring)
 
-proc verifySignLib(key, msg, signature:cstring):bool {.dynlib: libpath, importc:"verify_sign".}
-proc verifySign*(key, msg, signature:string):bool = verifySignLib(key.cstring, msg.cstring, signature.cstring)
+
+proc signMessageLib(key, msg:cstring):cstring {.dynlib:libpath, importc:"sign_message".}
+proc signMessage*(key, msg:string):string =
+  let key = key[2..^1] # 先頭の0xを削除
+  return "0x" & $signMessageLib(key.cstring, msg.cstring)
+
+proc verifySignLib(verifyKey, msg, signature:cstring):bool {.dynlib: libpath, importc:"verify_sign".}
+proc verifySign*(verifyKey, msg, signature:string):bool =
+  let verifyKey = verifyKey[2..^1 ]# 先頭の0xを削除
+  let signature = signature[2..^1] # 先頭の0xを削除
+  return verifySignLib(verifyKey.cstring, msg.cstring, signature.cstring)
